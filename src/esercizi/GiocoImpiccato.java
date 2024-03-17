@@ -3,54 +3,69 @@ package esercizi;
 import java.util.Scanner;
 
 public class GiocoImpiccato {
-    private static final String[] PAROLE = {"ciao", "mondo", "java", "programmazione", "computer", "intelligenza"};
+    private static final String[] PAROLE = {"cane", "recipiente", "casa", "albero", "computer", "banana"}; // Lista di parole
+    private static final int MAX_TENTATIVI = 6; // Numero massimo di tentativi
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        String parolaDaIndovinare = scegliParola();
-        StringBuilder parolaCorrente = new StringBuilder();
-        int tentativiRimasti = 6;
-        boolean indovinato = false;
+        String parolaDaIndovinare = scegliParola(); // Sceglie una parola a caso dalla lista
+        StringBuilder parolaAttuale = new StringBuilder(parolaDaIndovinare.length());
 
-        // Inizializza la parola corrente con trattini per ogni lettera della parola da indovinare
+        int numCaratteriVisibili = determinaNumeroCaratteriVisibili(parolaDaIndovinare.length());
         for (int i = 0; i < parolaDaIndovinare.length(); i++) {
-            parolaCorrente.append("-");
+            if (i < numCaratteriVisibili) {
+                parolaAttuale.append(parolaDaIndovinare.charAt(i));
+            } else {
+                parolaAttuale.append('_');
+            }
         }
 
-        while (tentativiRimasti > 0 && !indovinato) {
-            System.out.println("Parola da indovinare: " + parolaCorrente);
+        int tentativiRimasti = MAX_TENTATIVI;
+
+        System.out.println("Benvenuto al Gioco dell'Impiccato!");
+        System.out.println("Indovina la parola: " + parolaAttuale);
+
+        while (tentativiRimasti > 0 && parolaAttuale.indexOf("_") != -1) {
             System.out.println("Tentativi rimasti: " + tentativiRimasti);
             System.out.print("Inserisci una lettera: ");
             char lettera = scanner.next().charAt(0);
 
-            if (parolaDaIndovinare.indexOf(lettera) == -1) {
-                System.out.println("La lettera " + lettera + " non è presente nella parola.");
+            if (!aggiornaParola(parolaDaIndovinare, parolaAttuale, lettera)) {
                 tentativiRimasti--;
-            } else {
-                for (int i = 0; i < parolaDaIndovinare.length(); i++) {
-                    if (parolaDaIndovinare.charAt(i) == lettera) {
-                        parolaCorrente.setCharAt(i, lettera);
-                    }
-                }
-
-                if (parolaCorrente.toString().equals(parolaDaIndovinare)) {
-                    indovinato = true;
-                }
+                System.out.println("La lettera non è presente nella parola.");
             }
         }
 
-        if (indovinato) {
-            System.out.println("Hai indovinato! La parola era: " + parolaDaIndovinare);
+        if (parolaAttuale.indexOf("_") == -1) {
+            System.out.println("Complimenti! Hai indovinato la parola: " + parolaDaIndovinare);
         } else {
-            System.out.println("Hai perso! La parola era: " + parolaDaIndovinare);
+            System.out.println("Hai esaurito tutti i tentativi. La parola da indovinare era: " + parolaDaIndovinare);
         }
-
-        scanner.close();
     }
 
     private static String scegliParola() {
-        int indice = (int) (Math.random() * PAROLE.length);
-        return PAROLE[indice];
+        return PAROLE[(int) (Math.random() * PAROLE.length)];
+    }
+
+    private static int determinaNumeroCaratteriVisibili(int lunghezzaParola) {
+        if (lunghezzaParola <= 6) {
+            return 1;
+        } else if (lunghezzaParola <= 10) {
+            return 2;
+        } else {
+            return 3;
+        }
+    }
+
+    private static boolean aggiornaParola(String parolaDaIndovinare, StringBuilder parolaAttuale, char lettera) {
+        boolean trovata = false;
+        for (int i = 0; i < parolaDaIndovinare.length(); i++) {
+            if (parolaDaIndovinare.charAt(i) == lettera) {
+                parolaAttuale.setCharAt(i, lettera);
+                trovata = true;
+            }
+        }
+        return trovata;
     }
 }
 
