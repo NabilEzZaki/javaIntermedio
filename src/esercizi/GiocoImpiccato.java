@@ -3,23 +3,13 @@ package esercizi;
 import java.util.Scanner;
 
 public class GiocoImpiccato {
-    private static final String[] PAROLE = {"cane", "recipiente", "casa", "albero", "computer", "banana"}; // Lista di parole
+    private static final String[] PAROLE = {"cane", "gatto", "casa", "albero", "computer", "banana"}; // Lista di parole
     private static final int MAX_TENTATIVI = 6; // Numero massimo di tentativi
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         String parolaDaIndovinare = scegliParola(); // Sceglie una parola a caso dalla lista
-        StringBuilder parolaAttuale = new StringBuilder(parolaDaIndovinare.length());
-
-        int numCaratteriVisibili = determinaNumeroCaratteriVisibili(parolaDaIndovinare.length());
-        for (int i = 0; i < parolaDaIndovinare.length(); i++) {
-            if (i < numCaratteriVisibili) {
-                parolaAttuale.append(parolaDaIndovinare.charAt(i));
-            } else {
-                parolaAttuale.append('_');
-            }
-        }
-
+        StringBuilder parolaAttuale = inizializzaParolaAttuale(parolaDaIndovinare); // Inizializza la parola attuale con caratteri visibili
         int tentativiRimasti = MAX_TENTATIVI;
 
         System.out.println("Benvenuto al Gioco dell'Impiccato!");
@@ -27,13 +17,27 @@ public class GiocoImpiccato {
 
         while (tentativiRimasti > 0 && parolaAttuale.indexOf("_") != -1) {
             System.out.println("Tentativi rimasti: " + tentativiRimasti);
-            System.out.print("Inserisci una lettera: ");
-            char lettera = scanner.next().charAt(0);
+            System.out.println("Indovina una lettera o la parola intera: ");
+            String input = scanner.nextLine();
 
-            if (!aggiornaParola(parolaDaIndovinare, parolaAttuale, lettera)) {
-                tentativiRimasti--;
-                System.out.println("La lettera non è presente nella parola.");
+            if (input.length() == 1) { // L'utente ha inserito una singola lettera
+                char lettera = input.charAt(0);
+                if (!aggiornaParola(parolaDaIndovinare, parolaAttuale, lettera)) {
+                    tentativiRimasti--;
+                    System.out.println("La lettera non è presente nella parola.");
+                }
+            } else if (input.length() == parolaDaIndovinare.length()) { // L'utente ha inserito l'intera parola
+                if (input.equalsIgnoreCase(parolaDaIndovinare)) {
+                    parolaAttuale = new StringBuilder(parolaDaIndovinare);
+                } else {
+                    tentativiRimasti--;
+                    System.out.println("La parola inserita non è corretta.");
+                }
+            } else {
+                System.out.println("Input non valido. Inserisci una singola lettera o la parola intera.");
             }
+
+            System.out.println("Parola: " + parolaAttuale);
         }
 
         if (parolaAttuale.indexOf("_") == -1) {
@@ -47,7 +51,20 @@ public class GiocoImpiccato {
         return PAROLE[(int) (Math.random() * PAROLE.length)];
     }
 
-    private static int determinaNumeroCaratteriVisibili(int lunghezzaParola) {
+    private static StringBuilder inizializzaParolaAttuale(String parolaDaIndovinare) {
+        StringBuilder parolaAttuale = new StringBuilder(parolaDaIndovinare.length());
+        int numeroDiLettereVisibili = calcolaNumeroLettereVisibili(parolaDaIndovinare.length());
+        for (int i = 0; i < parolaDaIndovinare.length(); i++) {
+            if (i < numeroDiLettereVisibili) {
+                parolaAttuale.append(parolaDaIndovinare.charAt(i));
+            } else {
+                parolaAttuale.append('_');
+            }
+        }
+        return parolaAttuale;
+    }
+
+    private static int calcolaNumeroLettereVisibili(int lunghezzaParola) {
         if (lunghezzaParola <= 6) {
             return 1;
         } else if (lunghezzaParola <= 10) {
@@ -60,12 +77,11 @@ public class GiocoImpiccato {
     private static boolean aggiornaParola(String parolaDaIndovinare, StringBuilder parolaAttuale, char lettera) {
         boolean trovata = false;
         for (int i = 0; i < parolaDaIndovinare.length(); i++) {
-            if (parolaDaIndovinare.charAt(i) == lettera) {
-                parolaAttuale.setCharAt(i, lettera);
+            if (Character.toLowerCase(parolaDaIndovinare.charAt(i)) == Character.toLowerCase(lettera)) {
+                parolaAttuale.setCharAt(i, parolaDaIndovinare.charAt(i));
                 trovata = true;
             }
         }
         return trovata;
     }
 }
-
